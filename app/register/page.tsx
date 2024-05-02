@@ -72,7 +72,7 @@ export default function Page() {
             <div className="grid gap-2">
               <Label htmlFor="prenom">Prénom</Label>
               <Input
-                id="first-name"
+                id="prenom"
                 type="string"
                 placeholder="Max"
                 required
@@ -83,7 +83,7 @@ export default function Page() {
             <div className="grid gap-2">
               <Label htmlFor="nom">Nom</Label>
               <Input
-                id="last-name"
+                id="nom"
                 type="string"
                 placeholder="Robinson"
                 required
