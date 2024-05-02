@@ -1,5 +1,4 @@
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 
 export default function Layout({
     children,
@@ -7,9 +6,10 @@ export default function Layout({
     children: React.ReactNode;
   }>) {
     return (
-      <div className="container">
+      <>
         <Navbar/>
+        <div className="container mt-4">
         {children}
-        <Footer/>
-      </div>)
-  }
+      </div>
+      </>
+  )}

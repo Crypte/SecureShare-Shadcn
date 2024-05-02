@@ -12,14 +12,14 @@ export default function Page() {
       <div className="flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">Login</h1>
+            <h1 className="text-3xl font-bold">Connexion</h1>
             <p className="text-balance text-muted-foreground">
-              Enter your email below to login to your account
+              Entrez votre adresse e-mail ci-dessous pour vous connecter à votre compte
             </p>
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input
                 id="email"
                 type="email"
@@ -29,29 +29,29 @@ export default function Page() {
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password">Mot de passe</Label>
                 <Link
                   href="/forgot-password"
                   className="ml-auto inline-block text-sm underline"
                 >
-                  Forgot your password?
+                  Mot de passe oublié ?
                 </Link>
               </div>
               <Input id="password" type="password" required />
             </div>
             <Button type="submit" className="w-full">
-              Login
+              Connexion
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link href={'/home'}>
-            <ArrowLeft className="mr-2 h-4 w-4" />Return to the app
-            </Link>
+                <ArrowLeft className="mr-2 h-4 w-4" />Retour à l'application
+              </Link>
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
-            Don&apos;t have an account?{" "}
+            Vous n'avez pas de compte ?{" "}
             <Link href="/register" className="underline">
-              Sign up
+              Inscrivez-vous
             </Link>
           </div>
         </div>

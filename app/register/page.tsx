@@ -1,3 +1,5 @@
+'use client'
+
 import Image from "next/image"
 import Link from "next/link"
 
@@ -5,16 +7,54 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ArrowLeft } from "lucide-react"
+import { useState } from "react"
 
 export default function Page() {
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [nom, setNom] = useState("")
+  const [prenom, setPrenom] = useState("")
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+
+    const formData = new FormData()
+    formData.append("nom", nom)
+    formData.append("prenom", prenom)
+    formData.append("email", email)
+    formData.append("password", password)
+
+    try {
+      const response = await fetch("http://localhost:3000/api/users/signup", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        console.log(data)
+      } else {
+        const error = await response.json()
+        console.log(error)
+      }
+    } catch (error) {
+      console.error(error)
+    }
+
+    setEmail("")
+    setPassword("")
+    setNom("")
+    setPrenom("")
+  }
+
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
+        <form className="mx-auto grid w-[350px] gap-6" onSubmit={handleSubmit}>
           <div className="grid gap-2 text-center">
-            <h1 className="text-3xl font-bold">Register</h1>
+            <h1 className="text-3xl font-bold">Inscription</h1>
             <p className="text-balance text-muted-foreground">
-              Enter your information below to register
+              Entrez vos informations ci-dessous pour vous inscrire
             </p>
           </div>
           <div className="grid gap-4">
@@ -25,49 +65,60 @@ export default function Page() {
                 type="email"
                 placeholder="m@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="First name">First name</Label>
+              <Label htmlFor="prenom">Prénom</Label>
               <Input
                 id="first-name"
                 type="string"
                 placeholder="Max"
                 required
+                value={nom}
+                onChange={(e) => setNom(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="Last name">Last name</Label>
+              <Label htmlFor="nom">Nom</Label>
               <Input
                 id="last-name"
                 type="string"
                 placeholder="Robinson"
                 required
+                value={prenom}
+                onChange={(e) => setPrenom(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-                
+                <Label htmlFor="password">Mot de passe</Label>
               </div>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
             </div>
             <Button type="submit" className="w-full">
-              Register
+              S'inscrire
             </Button>
             <Button asChild variant="outline" className="w-full">
-            <Link href={'/home'}>
-            <ArrowLeft className="mr-2 h-4 w-4" />Return to the app
-            </Link>
+              <Link href={'/home'}>
+                <ArrowLeft className="mr-2 h-4 w-4" />Retour à l'application
+              </Link>
             </Button>
           </div>
           <div className="mt-4 text-center text-sm">
-           Already have an account?{" "}
+            Vous avez déjà un compte ?{" "}
             <Link href="/login" className="underline">
-              Login
+              Se connecter
             </Link>
           </div>
-        </div>
+        </form>
       </div>
       <div className="hidden bg-muted lg:block">
         <Image

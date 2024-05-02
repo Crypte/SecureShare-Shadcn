@@ -1,6 +1,6 @@
 'use client'
 
-import { Generatekey } from './Generatekey';
+import { GenerateKey } from './Generatekey';
 import React, { useState } from 'react';
 import {FileInput} from './Fileinput';
 import {DownloadButton} from './Downloadbutton';
@@ -36,7 +36,6 @@ export function Encryption() {
       setUserFile(selectedFile);
     };
 
-    // Mot de passe
     const [encryptionType, setEncryptionType] = useState("");
 
     const [password, setPassword] = useState('');
@@ -101,7 +100,7 @@ export function Encryption() {
           <>
             <div className="space-y-2">
               <Label htmlFor="keyinput">Générez votre clé privée</Label>
-              <Generatekey/>
+              <GenerateKey/>
             </div>
           </>
         )}
