@@ -3,9 +3,6 @@ import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 import Folder from "@/models/folderModel";
 
-
-
-
 export async function GET(request: NextRequest, { params }: { params: { folderId: string }}){
     const search = request.nextUrl.searchParams.get('name');
     
