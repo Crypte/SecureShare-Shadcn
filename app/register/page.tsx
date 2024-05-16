@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from 'next/navigation';
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +15,7 @@ export default function Page() {
   const [password, setPassword] = useState("")
   const [nom, setNom] = useState("")
   const [prenom, setPrenom] = useState("")
+  const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -33,6 +35,8 @@ export default function Page() {
       if (response.ok) {
         const data = await response.json()
         console.log(data)
+        // Rediriger vers la page /home/cloud après la soumission réussie du formulaire
+        router.push('/home/cloud');
       } else {
         const error = await response.json()
         console.log(error)

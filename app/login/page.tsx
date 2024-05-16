@@ -1,46 +1,92 @@
-import Image from "next/image"
-import Link from "next/link"
+'use client' // Marquez le parent avec "use client" pour qu'il soit considéré comme une Client Component
+import { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft } from "lucide-react";
+import bcryptjs from "bcryptjs";
+import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft } from "lucide-react"
+export default function Register() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [userData, setUserData] = useState(null); // State pour stocker les données utilisateur récupérées
+  const router = useRouter(); // Initialisez le hook useRouter
 
-export default function Page() {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    // Hasher le mot de passe
+    const hashedPassword = await bcryptjs.hash(password, 10);
+
+    try {
+        const response = await fetch(`http://localhost:3000/api/users`);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("User data:", data);
+          setUserData(data); // Met à jour l'état avec les données utilisateur récupérées
+          // Filtrer les données pour ne garder que celles correspondant à l'e-mail saisi
+          const matchedUser = data.find((user: any) => user.email === email);
+          if (matchedUser) {
+            console.log(matchedUser); // Met à jour l'état avec les données de l'utilisateur correspondant
+            const userId = matchedUser._id; // Extrayez l'ID de l'utilisateur
+            router.push(`/home/cloud?_idObject=${userId}`); // Redirigez vers la bonne page
+          } else {
+            console.error("User not found");
+            setUserData(null); // Aucun utilisateur correspondant trouvé, mettre à jour l'état à null
+          }
+        } else {
+          console.error("Failed to fetch user data");
+        }
+      } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
       <div className="flex items-center justify-center py-12">
-        <div className="mx-auto grid w-[350px] gap-6">
+        <form className="mx-auto grid w-[350px] gap-6" onSubmit={handleSubmit}>
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Connexion</h1>
-            <p className="text-balance text-muted-foreground">
-              Entrez votre adresse e-mail ci-dessous pour vous connecter à votre compte
-            </p>
+            <p className="text-balance text-muted-foreground">Entrez vos informations ci-dessous pour vous connecter</p>
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="email">E-mail</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="m@example.com"
                 required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Mot de passe</Label>
-                <Link
-                  href="/forgot-password"
-                  className="ml-auto inline-block text-sm underline"
-                >
+                <Link href="/forgot-password" className="ml-auto inline-block text-sm underline">
                   Mot de passe oublié ?
                 </Link>
               </div>
-              <Input id="password" type="password" required />
+              <Input
+                id="password"
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center">
+                <Link href="/register" className="ml-auto inline-block text-sm underline">
+                  S'inscrire
+                </Link>
             </div>
             <Button type="submit" className="w-full">
-              Connexion
+              Se connecter
             </Button>
             <Button asChild variant="outline" className="w-full">
               <Link href={'/home'}>
@@ -48,13 +94,7 @@ export default function Page() {
               </Link>
             </Button>
           </div>
-          <div className="mt-4 text-center text-sm">
-            Vous n'avez pas de compte ?{" "}
-            <Link href="/register" className="underline">
-              Inscrivez-vous
-            </Link>
-          </div>
-        </div>
+        </form>
       </div>
       <div className="hidden bg-muted lg:block">
         <Image
@@ -65,6 +105,12 @@ export default function Page() {
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
+      {userData && (
+        <div>
+          <h2>User Data</h2>
+          <pre>{JSON.stringify(userData, null, 2)}</pre>
+        </div>
+      )}
     </div>
-  )
+  );
 }
