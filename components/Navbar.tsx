@@ -1,6 +1,8 @@
-import { CircleUser, Menu, Package2, Search } from "lucide-react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+"use client";
+
+import { CircleUser, Menu, Package2, Search } from "lucide-react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,16 +10,26 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ThemeSwitch } from "./Theme-switch"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { ThemeSwitch } from "./Theme-switch";
+import { useState, useEffect } from "react";
 
-export function Navbar() {
+interface NavbarProps {
+  isConnected: boolean;
+}
+
+export function Navbar({ isConnected }: NavbarProps) {
+  const [isConnectedState, setIsConnectedState] = useState(isConnected);
+
+  useEffect(() => {
+    setIsConnectedState(isConnected);
+  }, [isConnected]);
 
   return (
     <header className="sticky top-0 border-b bg-background">
-      <div className="container flex h-16 items-center gap-4 px-4 md:px-6 justify-between ">
+      <div className="container flex h-16 items-center gap-4 px-4 md:px-6 justify-between">
         <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
           <Link
             href="/home"
@@ -32,12 +44,14 @@ export function Navbar() {
           >
             Home
           </Link>
-          <Link
-            href="/home/cloud"
-            className="text-muted-foreground transition-colors hover:text-foreground"
-          >
-            Cloud
-          </Link>
+          {isConnectedState && (
+            <Link
+              href="/home/cloud"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Cloud
+            </Link>
+          )}
           <Link
             href="/info"
             className="text-muted-foreground transition-colors hover:text-foreground"
@@ -71,12 +85,14 @@ export function Navbar() {
               >
                 Home
               </Link>
-              <Link
-                href="/home/cloud"
-                className="text-muted-foreground hover:text-foreground"
-              >
-                Cloud
-              </Link>
+              {isConnectedState && (
+                <Link
+                  href="/home/cloud"
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Cloud
+                </Link>
+              )}
               <Link
                 href="/info"
                 className="text-muted-foreground hover:text-foreground"
@@ -87,14 +103,14 @@ export function Navbar() {
           </SheetContent>
         </Sheet>
         <div className="flex items-center space-x-4">
-          <Button asChild>
-            <Link href={'/login'}>
-              Se connecter
-            </Link>
+          {!isConnectedState && (
+            <Button asChild>
+              <Link href={"/login"}>Se connecter</Link>
             </Button>
-            <ThemeSwitch/>
+          )}
+          <ThemeSwitch />
         </div>
-        </div>
-      </header>
+      </div>
+    </header>
   );
-};
+}

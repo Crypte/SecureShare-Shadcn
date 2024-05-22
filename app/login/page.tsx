@@ -31,8 +31,40 @@ export default function Register() {
           const matchedUser = data.find((user: any) => user.email === email);
           if (matchedUser) {
             console.log(matchedUser); // Met à jour l'état avec les données de l'utilisateur correspondant
-            const userId = matchedUser._id; // Extrayez l'ID de l'utilisateur
-            router.push(`/home/cloud?_idObject=${userId}`); // Redirigez vers la bonne page
+            // Comparer les mots de passe hashés
+            console.log(matchedUser.hashed_password);
+            const passwordMatch = await bcryptjs.compare(password, matchedUser.hashed_password);
+            if (passwordMatch) {
+              console.log("Password matched"); // Le mot de passe correspond
+              const userId = matchedUser._id;
+              console.log("role : " + matchedUser.role);
+              const role = matchedUser.role;
+              try {
+                const response = await fetch('/api/users/token', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ email, password, role }),
+                });
+          
+                if (response.ok) {
+                  const data = await response.json();
+                  localStorage.setItem("token", data.token);
+                  localStorage.setItem("role", data.role);
+                  router.push(`/home/cloud`);
+                } else {
+                  const errorData = await response.json();
+                  setError(errorData.message || 'An error occurred');
+                }
+              } catch (error) {
+                console.error('Failed to login:', error);
+                setError('An error occurred');
+              }
+              router.push(`/home`);
+            } else {
+              console.error("Incorrect password"); // Le mot de passe ne correspond pas
+            }
           } else {
             console.error("User not found");
             setUserData(null); // Aucun utilisateur correspondant trouvé, mettre à jour l'état à null
@@ -113,4 +145,7 @@ export default function Register() {
       )}
     </div>
   );
+}
+function setError(arg0: any) {
+  throw new Error("Function not implemented.");
 }

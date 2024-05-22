@@ -34,9 +34,8 @@ export default function Page() {
 
       if (response.ok) {
         const data = await response.json()
-        console.log(data)
         // Rediriger vers la page /home/cloud après la soumission réussie du formulaire
-        router.push('/home/cloud');
+        router.push('/login');
       } else {
         const error = await response.json()
         console.log(error)
