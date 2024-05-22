@@ -44,14 +44,12 @@ export function Navbar({ isConnected }: NavbarProps) {
           >
             Home
           </Link>
-          {isConnectedState && (
             <Link
               href="/home/cloud"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
               Cloud
             </Link>
-          )}
           <Link
             href="/info"
             className="text-muted-foreground transition-colors hover:text-foreground"
@@ -98,6 +96,12 @@ export function Navbar({ isConnected }: NavbarProps) {
                 className="text-muted-foreground hover:text-foreground"
               >
                 Info
+              </Link>
+              <Link
+                href="/home/cloud"
+                className="text-muted-foreground hover:text-foreground"
+              >
+                Cloud
               </Link>
             </nav>
           </SheetContent>
