@@ -1,36 +1,53 @@
-import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import { writeFile } from "fs/promises";
-import File from "@/models/fileModel";
+import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
+import File from '@/models/fileModel'; // Assurez-vous que le chemin est correct et que le fichier est bien un .ts
 
-export async function POST(request: NextRequest){
-    const formData = await request.formData();
+// Connect to MongoDB
+const connectDB = async () => {
+  if (mongoose.connection.readyState >= 1) return;
 
-    console.log(formData.getAll('files').length)
-
-    const file = formData.get("file") as File;
-    var filename = formData.get("filename") as String;
-    filename =  filename.replaceAll(" ", "_");
-    if (!file) {
-        return NextResponse.json({ error: "No files received." }, { status: 400 });
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const fileToSave = new File({
-        fileName: filename,
-        fileType: file.type,
-        fileData: buffer,
-        folderId: formData.get('folderId'),
-        userId: formData.get('userId')
-    })
-
-    
-
-    const savedFile = await fileToSave.save();
-    console.log(filename);
-    return NextResponse.json({
-        message: "File added successfully",
-        success: true,
-        savedFile
-    })
+  return mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
 };
+
+// POST handler
+export async function POST(request: NextRequest) {
+  await connectDB();
+
+  const formData = await request.formData();
+
+  const file = formData.get('file') as File;
+  const fileName = (formData.get('fileName') as string).replace(/\s+/g, '_');
+  const fileType = formData.get('fileType') as string;
+  const folderId = formData.get('folderId') as string;
+  const userId = formData.get('userId') as string;
+
+  if (!file || !fileName || !fileType || !folderId || !userId) {
+    return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const newFile = new File({
+    fileName,
+    fileType,
+    fileData: buffer,
+    folderId,
+    userId
+  });
+
+  try {
+    const savedFile = await newFile.save();
+    return NextResponse.json({
+      message: "File uploaded successfully",
+      success: true,
+      savedFile
+    });
+  } catch (error) {
+    return NextResponse.json({
+      error: "Error uploading file",
+      details: error.message
+    }, { status: 500 });
+  }
+}

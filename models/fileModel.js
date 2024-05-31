@@ -1,17 +1,14 @@
-
-import { ObjectId } from "mongodb";
 import mongoose from "mongoose";
 
+const FileSchema = new mongoose.Schema({
+  fileName: { type: String, required: true },
+  fileType: { type: String, required: true },
+  fileData: { type: Buffer, required: true },
+  folderId: { type: String, required: true },
+  userId: { type: String, required: true },
+});
 
-export const fileSchema = new mongoose.Schema({
-    fileName: String,
-    fileType: String,
-    fileData: Buffer, // Contenu du fichier sous forme de données binaires
 
-    folderId: ObjectId,
-    userId: ObjectId
-  });
-
-const File = mongoose.model('File', fileSchema);
+const File = mongoose.models.File || mongoose.model("File", FileSchema);
 
 export default File;
