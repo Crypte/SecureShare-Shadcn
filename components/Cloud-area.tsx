@@ -12,7 +12,6 @@ import { BadgePlus, Download } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 
 export const Cloud = () => {
   const [userId, setUserId] = useState<string | null>(null);
@@ -100,12 +99,6 @@ export const Cloud = () => {
           </Alert>
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-3">
-              <Label
-                htmlFor="folder-name"
-                className="text-sm font-medium w-fit"
-              >
-                Nom du dossier
-              </Label>
               <Input
                 type="text"
                 name="folder-name"
