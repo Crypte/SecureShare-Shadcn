@@ -1,10 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
 import { Cloud } from "@/components/Cloud-area";
-import { Button } from "@/components/ui/button";
-import { Encryption } from "@/components/Encryption";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { useEffect, useRef, useState } from "react";
 
 function MyPage() {
   const [isConnected, setIsConnected] = useState(false);
@@ -17,7 +15,7 @@ function MyPage() {
         const decodedToken = jwt.decode(token);
         setIsConnected(!!decodedToken);
       } catch (error) {
-        console.error('Invalid token', error);
+        console.error("Invalid token", error);
         setIsConnected(false);
       }
     } else {
@@ -25,7 +23,7 @@ function MyPage() {
     }
   }, []);
 
-  const handleFileChange = async (event) => {
+  const handleFileChange = async (event: any) => {
     const file = event.target.files[0];
     if (file) {
       const encryptedFile = await encryptFile(file);
@@ -33,35 +31,35 @@ function MyPage() {
     }
   };
 
-  const encryptFile = async (file) => {
-    const encryptionType = 'password'; // This should be dynamic based on user's choice
-    if (encryptionType === 'password') {
-      const password = 'user-password'; // Get this from user input
+  const encryptFile = async (file: any) => {
+    const encryptionType = "password"; // This should be dynamic based on user's choice
+    if (encryptionType === "password") {
+      const password = "user-password"; // Get this from user input
       // Implement password-based encryption here
       return file; // Return the encrypted file
-    } else if (encryptionType === 'privatekey') {
+    } else if (encryptionType === "privatekey") {
       // Implement private key-based encryption here
       return file; // Return the encrypted file
     }
   };
 
-  const uploadFile = async (file) => {
+  const uploadFile = async (file: any) => {
     try {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
-      const response = await fetch('/api/file/upload', {
-        method: 'POST',
+      const response = await fetch("/api/file/upload", {
+        method: "POST",
         body: formData,
       });
 
       if (response.ok) {
-        console.log('File uploaded successfully');
+        console.log("File uploaded successfully");
       } else {
-        console.error('Failed to upload file');
+        console.error("Failed to upload file");
       }
     } catch (error) {
-      console.error('Error uploading file', error);
+      console.error("Error uploading file", error);
     }
   };
 
@@ -73,10 +71,9 @@ function MyPage() {
           <input
             ref={fileInputRef}
             type="file"
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
             onChange={handleFileChange}
           />
-          <Encryption _idObject="example_id" />
         </>
       )}
     </>
