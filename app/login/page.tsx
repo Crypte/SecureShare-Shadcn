@@ -1,13 +1,13 @@
-'use client' // Marquez le parent avec "use client" pour qu'il soit considéré comme une Client Component
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+"use client"; // Marquez le parent avec "use client" pour qu'il soit considéré comme une Client Component
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
 import bcryptjs from "bcryptjs";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -22,57 +22,60 @@ export default function Register() {
     const hashedPassword = await bcryptjs.hash(password, 10);
 
     try {
-        const response = await fetch(`http://localhost:3000/api/users`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("User data:", data);
-          setUserData(data); // Met à jour l'état avec les données utilisateur récupérées
-          // Filtrer les données pour ne garder que celles correspondant à l'e-mail saisi
-          const matchedUser = data.find((user: any) => user.email === email);
-          if (matchedUser) {
-            console.log(matchedUser); // Met à jour l'état avec les données de l'utilisateur correspondant
-            // Comparer les mots de passe hashés
-            console.log(matchedUser.hashed_password);
-            const passwordMatch = await bcryptjs.compare(password, matchedUser.hashed_password);
-            if (passwordMatch) {
-              console.log("Password matched"); // Le mot de passe correspond
-              const userId = matchedUser._id;
-              console.log("role : " + matchedUser.role);
-              const role = matchedUser.role;
-              try {
-                const response = await fetch('/api/users/token', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ email, password, role }),
-                });
-          
-                if (response.ok) {
-                  const data = await response.json();
-                  localStorage.setItem("token", data.token);
-                  localStorage.setItem("role", data.role);
-                  router.push(`/home/cloud`);
-                } else {
-                  const errorData = await response.json();
-                  setError(errorData.message || 'An error occurred');
-                }
-              } catch (error) {
-                console.error('Failed to login:', error);
-                setError('An error occurred');
+      const response = await fetch(`http://localhost:3000/api/users`);
+      if (response.ok) {
+        const data = await response.json();
+        console.log("User data:", data);
+        setUserData(data); // Met à jour l'état avec les données utilisateur récupérées
+        // Filtrer les données pour ne garder que celles correspondant à l'e-mail saisi
+        const matchedUser = data.find((user: any) => user.email === email);
+        if (matchedUser) {
+          console.log(matchedUser); // Met à jour l'état avec les données de l'utilisateur correspondant
+          // Comparer les mots de passe hashés
+          console.log(matchedUser.hashed_password);
+          const passwordMatch = await bcryptjs.compare(
+            password,
+            matchedUser.hashed_password
+          );
+          if (passwordMatch) {
+            console.log("Password matched"); // Le mot de passe correspond
+            const userId = matchedUser._id;
+            console.log("role : " + matchedUser.role);
+            const role = matchedUser.role;
+            try {
+              const response = await fetch("/api/users/token", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ email, password, role }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                localStorage.setItem("token", data.token);
+                localStorage.setItem("role", data.role);
+                router.push(`/home/cloud`);
+              } else {
+                const errorData = await response.json();
+                setError(errorData.message || "An error occurred");
               }
-              router.push(`/home`);
-            } else {
-              console.error("Incorrect password"); // Le mot de passe ne correspond pas
+            } catch (error) {
+              console.error("Failed to login:", error);
+              setError("An error occurred");
             }
+            router.push(`/home`);
           } else {
-            console.error("User not found");
-            setUserData(null); // Aucun utilisateur correspondant trouvé, mettre à jour l'état à null
+            console.error("Incorrect password"); // Le mot de passe ne correspond pas
           }
         } else {
-          console.error("Failed to fetch user data");
+          console.error("User not found");
+          setUserData(null); // Aucun utilisateur correspondant trouvé, mettre à jour l'état à null
         }
-      } catch (error) {
+      } else {
+        console.error("Failed to fetch user data");
+      }
+    } catch (error) {
       console.error(error);
     }
   };
@@ -83,7 +86,9 @@ export default function Register() {
         <form className="mx-auto grid w-[350px] gap-6" onSubmit={handleSubmit}>
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Connexion</h1>
-            <p className="text-balance text-muted-foreground">Entrez vos informations ci-dessous pour vous connecter</p>
+            <p className="text-balance text-muted-foreground">
+              Entrez vos informations ci-dessous pour vous connecter
+            </p>
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -100,7 +105,10 @@ export default function Register() {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Mot de passe</Label>
-                <Link href="/forgot-password" className="ml-auto inline-block text-sm underline">
+                <Link
+                  href="/forgot-password"
+                  className="ml-auto inline-block text-sm underline"
+                >
                   Mot de passe oublié ?
                 </Link>
               </div>
@@ -113,16 +121,20 @@ export default function Register() {
               />
             </div>
             <div className="flex items-center">
-                <Link href="/register" className="ml-auto inline-block text-sm underline">
-                  S'inscrire
-                </Link>
+              <Link
+                href="/register"
+                className="ml-auto inline-block text-sm underline"
+              >
+                S'inscrire
+              </Link>
             </div>
             <Button type="submit" className="w-full">
               Se connecter
             </Button>
             <Button asChild variant="outline" className="w-full">
-              <Link href={'/home'}>
-                <ArrowLeft className="mr-2 h-4 w-4" />Retour à l'application
+              <Link href={"/home"}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retour à l'application
               </Link>
             </Button>
           </div>
@@ -130,7 +142,7 @@ export default function Register() {
       </div>
       <div className="hidden bg-muted lg:block">
         <Image
-          src="/placeholder.svg"
+          src="/login-image.jpg"
           alt="Image"
           width="1920"
           height="1080"

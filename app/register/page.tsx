@@ -1,54 +1,54 @@
-'use client'
+"use client";
 
-import Image from "next/image"
-import Link from "next/link"
-import { useRouter } from 'next/navigation';
+import Image from "next/image";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { ArrowLeft } from "lucide-react"
-import { useState } from "react"
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { ArrowLeft } from "lucide-react";
+import { useState } from "react";
 
 export default function Page() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [nom, setNom] = useState("")
-  const [prenom, setPrenom] = useState("")
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [nom, setNom] = useState("");
+  const [prenom, setPrenom] = useState("");
   const router = useRouter();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const formData = new FormData()
-    formData.append("nom", nom)
-    formData.append("prenom", prenom)
-    formData.append("email", email)
-    formData.append("password", password)
+    const formData = new FormData();
+    formData.append("nom", nom);
+    formData.append("prenom", prenom);
+    formData.append("email", email);
+    formData.append("password", password);
 
     try {
       const response = await fetch("http://localhost:3000/api/users/signup", {
         method: "POST",
         body: formData,
-      })
+      });
 
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json();
         // Rediriger vers la page /home/cloud après la soumission réussie du formulaire
-        router.push('/login');
+        router.push("/login");
       } else {
-        const error = await response.json()
-        console.log(error)
+        const error = await response.json();
+        console.log(error);
       }
     } catch (error) {
-      console.error(error)
+      console.error(error);
     }
 
-    setEmail("")
-    setPassword("")
-    setNom("")
-    setPrenom("")
-  }
+    setEmail("");
+    setPassword("");
+    setNom("");
+    setPrenom("");
+  };
 
   return (
     <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px]">
@@ -110,8 +110,9 @@ export default function Page() {
               S'inscrire
             </Button>
             <Button asChild variant="outline" className="w-full">
-              <Link href={'/home'}>
-                <ArrowLeft className="mr-2 h-4 w-4" />Retour à l'application
+              <Link href={"/home"}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retour à l'application
               </Link>
             </Button>
           </div>
@@ -125,7 +126,7 @@ export default function Page() {
       </div>
       <div className="hidden bg-muted lg:block">
         <Image
-          src="/placeholder.svg"
+          src="/login-image.jpg"
           alt="Image"
           width="1920"
           height="1080"
@@ -133,5 +134,5 @@ export default function Page() {
         />
       </div>
     </div>
-  )
+  );
 }

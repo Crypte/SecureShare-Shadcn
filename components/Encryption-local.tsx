@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -13,7 +12,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CloudUpload } from "lucide-react";
 import React, { useState } from "react";
 import { DownloadButton } from "./Downloadbutton";
 import { FileInput } from "./Fileinput";
@@ -21,11 +19,7 @@ import { GenerateKey } from "./Generatekey";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
-interface EncryptionProps {
-  _idObject: string | null;
-}
-
-export function Encryption({ _idObject }: EncryptionProps) {
+export function Encryptionlocal() {
   const [userFile, setUserFile] = useState<File | null>(null);
   const [encryptionType, setEncryptionType] = useState("");
   const [password, setPassword] = useState("");
@@ -49,42 +43,10 @@ export function Encryption({ _idObject }: EncryptionProps) {
     setPasswordMatch(event.target.value === password);
   };
 
-  const handleUploadToCloud = async () => {
-    if (!userFile) {
-      setUploadMessage("Veuillez sélectionner un fichier à téléverser.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", userFile);
-    formData.append("fileName", userFile.name);
-    formData.append("fileType", userFile.type);
-    formData.append("folderId", _idObject || "");
-    formData.append("userId", "your_user_id_here");
-
-    try {
-      const response = await fetch("/api/file/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Échec de la requête de téléversement.");
-      }
-
-      const data = await response.json();
-      setUploadMessage(
-        `Le fichier ${userFile.name} a été téléversé avec succès.`
-      );
-    } catch (error: any) {
-      setUploadMessage(`Échec du téléversement du fichier : ${error.message}`);
-    }
-  };
-
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Choisissez un fichier</CardTitle>
+        <CardTitle>Choisissez un fichier à chiffrer</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <FileInput onChange={handleUserFileChange} />
@@ -145,14 +107,6 @@ export function Encryption({ _idObject }: EncryptionProps) {
       </CardContent>
       <CardFooter className="gap-3">
         <DownloadButton file={userFile} />
-        <Button
-          className="w-full"
-          onClick={handleUploadToCloud}
-          disabled={!_idObject}
-        >
-          <CloudUpload className="mr-2 h-4 w-4" /> Envoyez votre fichier sur le
-          cloud
-        </Button>
       </CardFooter>
       {uploadMessage && <p className="text-center">{uploadMessage}</p>}
     </Card>

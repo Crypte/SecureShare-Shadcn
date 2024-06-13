@@ -1,31 +1,25 @@
-import React, { useState } from 'react';
-import { Encryption } from './Encryption';
-import { Decryption } from './Decryption';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Decryption } from "./Decryption";
+import { Encryptionlocal } from "./Encryption-local";
 interface SwitchProps {
   _idObject: string | null;
 }
 
-export function Switch({ _idObject }: SwitchProps) { // Ajoutez _idObject en tant que props
+export function Switch({ _idObject }: SwitchProps) {
+  // Ajoutez _idObject en tant que props
 
   return (
-    <Tabs defaultValue="chiffrement" className="w-full">
+    <Tabs defaultValue="chiffrement" className="max-w-[700px] mx-auto">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="chiffrement">Chiffrement</TabsTrigger>
         <TabsTrigger value="déchiffrement">Déchiffrement</TabsTrigger>
       </TabsList>
       <TabsContent value="chiffrement">
-        <Encryption _idObject={_idObject} /> {/* Transmettez _idObject en tant que props à Encryption */}
+        <Encryptionlocal />
       </TabsContent>
       <TabsContent value="déchiffrement">
         <Decryption />
       </TabsContent>
     </Tabs>
-  )
+  );
 }

@@ -1,26 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { Checkbox } from "@/components/ui/checkbox";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from './ui/button';
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
-import { Download, AlertCircle } from 'lucide-react';
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
+import { BadgePlus, Download } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 export const Cloud = () => {
   const [userId, setUserId] = useState<string | null>(null);
-  const [folderName, setFolderName] = useState('');
+  const [folderName, setFolderName] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const folderId = "yolo"; // Remplacez cette valeur par l'ID du dossier parent approprié
 
@@ -36,7 +32,7 @@ export const Cloud = () => {
           setIsConnected(false);
         }
       } catch (error) {
-        console.error('Invalid token', error);
+        console.error("Invalid token", error);
         setIsConnected(false);
       }
     } else {
@@ -63,7 +59,7 @@ export const Cloud = () => {
     },
   ];
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
 
     const newFolderData = {
@@ -73,52 +69,59 @@ export const Cloud = () => {
 
     try {
       const response = await fetch(`/api/folder/create?folderId=${folderId}`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem("token")}`, // Envoyer le token dans l'en-tête Authorization
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Envoyer le token dans l'en-tête Authorization
         },
         body: JSON.stringify(newFolderData),
       });
 
       if (response.ok) {
-        console.log('Dossier créé avec succès');
-        setFolderName(''); // Réinitialiser le champ de saisie
+        console.log("Dossier créé avec succès");
+        setFolderName(""); // Réinitialiser le champ de saisie
       } else {
-        console.error('Erreur lors de la création du dossier');
+        console.error("Erreur lors de la création du dossier");
       }
     } catch (error) {
-      console.error('Erreur lors de la requête fetch :', error);
+      console.error("Erreur lors de la requête fetch :", error);
     }
   };
 
   return (
-    <div className='flex flex-col gap-3'>
+    <div className="flex flex-col gap-3">
       {isConnected ? (
         <>
-          <Alert variant="default" className='text-center'>
+          <Alert variant="default" className="text-center">
             <AlertTitle>Vous êtes connecté</AlertTitle>
             <AlertDescription>
               La section drive est donc accessible
             </AlertDescription>
           </Alert>
           <form onSubmit={handleSubmit}>
-            <div className="flex items-center justify-between">
-              <label htmlFor="folder-name" className="text-sm font-medium leading-none">
+            <div className="flex items-center gap-3">
+              <Label
+                htmlFor="folder-name"
+                className="text-sm font-medium w-fit"
+              >
                 Nom du dossier
-              </label>
-              <input
+              </Label>
+              <Input
                 type="text"
                 name="folder-name"
                 id="folder-name"
                 value={folderName}
                 onChange={(event) => setFolderName(event.target.value)}
+                placeholder="Cherchez un fichier ou un dossier"
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
-              <Button type="submit" variant="outline"><AlertCircle className="mr-2 h-4 w-4" />Ajouter</Button>
+              <Button type="submit" variant="outline">
+                <BadgePlus className="mr-2 h-4 w-4" />
+                Ajouter
+              </Button>
             </div>
           </form>
-          <Table>
+          <Table className="mt-10">
             <TableHeader>
               <TableRow>
                 <TableHead>Fichier</TableHead>
@@ -132,7 +135,10 @@ export const Cloud = () => {
                   <TableCell className="font-medium">{item.file}</TableCell>
                   <TableCell>{item.addedDate}</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline"><Download className="mr-2 h-4 w-4" />Download</Button>
+                    <Button variant="outline">
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -140,7 +146,7 @@ export const Cloud = () => {
           </Table>
         </>
       ) : (
-        <Alert variant="destructive" className='text-center'>
+        <Alert variant="destructive" className="text-center">
           <AlertTitle>Vous n'êtes pas connecté</AlertTitle>
           <AlertDescription>
             La section drive est donc inaccessible
