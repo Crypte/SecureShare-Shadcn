@@ -35,7 +35,7 @@ export function Navbar() {
             <span className="sr-only">Acme Inc</span>
           </Link>
           <Link
-            href="/home"
+            href="/landing"
             className="text-muted-foreground transition-colors hover:text-foreground"
           >
             Home
