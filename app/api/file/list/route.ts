@@ -1,9 +1,10 @@
 import { getDataFromToken } from "@/lib/helpers/getDataFromToken";
+import { connect } from "@/lib/mongo/dbConfig"; 
 import { error } from "console";
 import { NextRequest, NextResponse } from "next/server";
 import File from "@/models/fileModel";
 
-
+connect()
 
 
 export async function GET(request: NextRequest, { params }: { params: { folderId: string }}){

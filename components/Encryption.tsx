@@ -40,29 +40,44 @@ export function Encryption({ _idObject }: EncryptionProps) {
       setUploadMessage('Veuillez sélectionner un fichier à téléverser.');
       return;
     }
+    const token = localStorage.getItem("token")
 
-    const formData = new FormData();
-    formData.append('file', userFile);
-    formData.append('fileName', userFile.name);
-    formData.append('fileType', userFile.type);
-    formData.append('folderId', _idObject || '');
-    formData.append('userId', 'your_user_id_here');
-
-    try {
-      const response = await fetch('/api/file/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error('Échec de la requête de téléversement.');
+    const response = await fetch('/api/users/me', {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem("token")}`, // Envoyer le token dans l'en-tête Authorization
       }
-
-      const data = await response.json();
-      setUploadMessage(`Le fichier ${userFile.name} a été téléversé avec succès.`);
-    } catch (error) {
-      setUploadMessage(`Échec du téléversement du fichier : ${error.message}`);
+    });
+    if(response.ok){
+      const data = response.json()
+      const formData = new FormData();
+      formData.append('file', userFile);
+      formData.append('fileName', userFile.name);
+      formData.append('fileType', userFile.type);
+      formData.append('folderId', _idObject || '');
+      formData.append('userId', data._id);
+      try {
+        const response = await fetch('/api/file/upload', {
+          method: 'POST',
+          body: formData,
+        });
+  
+        if (!response.ok) {
+          throw new Error('Échec de la requête de téléversement.');
+        }
+        setUploadMessage(`Le fichier ${userFile.name} a été téléversé avec succès.`);
+      } catch (error) {
+        setUploadMessage(`Échec du téléversement du fichier : ${error.message}`);
+      }
     }
+
+    
+
+
+    
+
+
   };
 
   return (

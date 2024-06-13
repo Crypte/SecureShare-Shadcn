@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Folder from "@/models/folderModel";
 import jwt from "jsonwebtoken";
+import { connect } from "@/lib/mongo/dbConfig"; 
+
+connect()
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);

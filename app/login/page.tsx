@@ -9,7 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import bcryptjs from "bcryptjs";
 import { useRouter } from "next/navigation";
 
-export default function Register() {
+export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [userData, setUserData] = useState(null); // State pour stocker les données utilisateur récupérées
@@ -18,59 +18,21 @@ export default function Register() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    // Hasher le mot de passe
-    const hashedPassword = await bcryptjs.hash(password, 10);
-
     try {
-        const response = await fetch(`http://localhost:3000/api/users`);
+      const response = await fetch('/api/users/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
         if (response.ok) {
           const data = await response.json();
-          console.log("User data:", data);
-          setUserData(data); // Met à jour l'état avec les données utilisateur récupérées
-          // Filtrer les données pour ne garder que celles correspondant à l'e-mail saisi
-          const matchedUser = data.find((user: any) => user.email === email);
-          if (matchedUser) {
-            console.log(matchedUser); // Met à jour l'état avec les données de l'utilisateur correspondant
-            // Comparer les mots de passe hashés
-            console.log(matchedUser.hashed_password);
-            const passwordMatch = await bcryptjs.compare(password, matchedUser.hashed_password);
-            if (passwordMatch) {
-              console.log("Password matched"); // Le mot de passe correspond
-              const userId = matchedUser._id;
-              console.log("role : " + matchedUser.role);
-              const role = matchedUser.role;
-              try {
-                const response = await fetch('/api/users/token', {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ email, password, role }),
-                });
-          
-                if (response.ok) {
-                  const data = await response.json();
-                  localStorage.setItem("token", data.token);
-                  localStorage.setItem("role", data.role);
+          localStorage.setItem("token", data.token);
                   router.push(`/home/cloud`);
-                } else {
-                  const errorData = await response.json();
-                  setError(errorData.message || 'An error occurred');
-                }
-              } catch (error) {
-                console.error('Failed to login:', error);
-                setError('An error occurred');
-              }
-              router.push(`/home`);
-            } else {
-              console.error("Incorrect password"); // Le mot de passe ne correspond pas
-            }
-          } else {
-            console.error("User not found");
-            setUserData(null); // Aucun utilisateur correspondant trouvé, mettre à jour l'état à null
-          }
         } else {
           console.error("Failed to fetch user data");
+          
         }
       } catch (error) {
       console.error(error);
@@ -137,12 +99,7 @@ export default function Register() {
           className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
         />
       </div>
-      {userData && (
-        <div>
-          <h2>User Data</h2>
-          <pre>{JSON.stringify(userData, null, 2)}</pre>
-        </div>
-      )}
+      
     </div>
   );
 }

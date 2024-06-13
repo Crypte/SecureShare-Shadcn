@@ -1,21 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mongoose from 'mongoose';
 import File from '@/models/fileModel'; // Assurez-vous que le chemin est correct et que le fichier est bien un .ts
+import { connect } from "@/lib/mongo/dbConfig"; 
+import { getDataFromToken } from '@/lib/helpers/getDataFromToken';
 
-// Connect to MongoDB
-const connectDB = async () => {
-  if (mongoose.connection.readyState >= 1) return;
-
-  return mongoose.connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  });
-};
-
+connect()
 // POST handler
 export async function POST(request: NextRequest) {
-  await connectDB();
+  await connect();
 
+  const user_id = await getDataFromToken(request)
+  if(user_id==null){
+    return NextResponse.json({error: 'Erreur lors de la vérification du token '}, {status: 400});
+}
   const formData = await request.formData();
 
   const file = formData.get('file') as File;
@@ -47,7 +44,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     return NextResponse.json({
       error: "Error uploading file",
-      details: error.message
+      
     }, { status: 500 });
   }
 }
