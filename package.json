@@ -24,6 +24,7 @@
     "clsx": "^2.1.0",
     "crypto-js": "^4.2.0",
     "dotenv": "^16.4.5",
+    "file-saver": "^2.0.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.363.0",
     "mongodb": "^6.5.0",
@@ -39,6 +40,7 @@
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/crypto-js": "^4.2.2",
+    "@types/file-saver": "^2.0.7",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/node": "^20",
     "@types/react": "^18",

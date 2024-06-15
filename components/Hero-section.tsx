@@ -5,9 +5,9 @@ import Link from "next/link";
 
 export default async function HeroLanding() {
   return (
-    <section className="space-y-6 py-12 sm:py-20 lg:py-20">
+    <section className="space-y-6 py-12 sm:py-20 lg:py-20 relative">
+      <div className="-z-50 absolute w-1/2 h-full bg-gradient-to-tr from-purple-600 to-red-600 left-1/2 bottom-1/2 transform -translate-x-1/2 translate-y-60 rounded-full blur-3xl opacity-20"></div>
       <div className="container flex max-w-5xl flex-col items-center gap-5 text-center">
-        {/* Want animations? Check here: https://github.com/mickasmt/next-saas-stripe-starter/blob/76eb9f2b70b29c7a734ff0e5b047796ed2dac28d/app/(marketing)/page.tsx */}
         <Link
           href="https://twitter.com/miickasmt/status/1719892161095745801"
           className={cn(

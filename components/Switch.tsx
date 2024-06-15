@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Decryption } from "./Decryption";
+import { Decryptionlocal } from "./Decryption-local";
 import { Encryptionlocal } from "./Encryption-local";
 interface SwitchProps {
   _idObject: string | null;
@@ -18,7 +18,7 @@ export function Switch({ _idObject }: SwitchProps) {
         <Encryptionlocal />
       </TabsContent>
       <TabsContent value="déchiffrement">
-        <Decryption />
+        <Decryptionlocal />
       </TabsContent>
     </Tabs>
   );

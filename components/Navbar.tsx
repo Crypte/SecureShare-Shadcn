@@ -104,9 +104,14 @@ export function Navbar() {
         </Sheet>
         <div className="flex items-center space-x-4">
           {!isConnectedState && (
-            <Button asChild>
-              <Link href={"/login"}>Se connecter</Link>
-            </Button>
+            <div className="flex space-x-4">
+              <Button variant={"outline"} asChild>
+                <Link href={"/S'inscrire"}>S'inscrire</Link>
+              </Button>
+              <Button asChild>
+                <Link href={"/login"}>Se connecter</Link>
+              </Button>
+            </div>
           )}
           {isConnectedState && (
             <Button
