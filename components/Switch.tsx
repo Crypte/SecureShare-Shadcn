@@ -1,11 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Decryptionlocal } from "./Decryption-local";
 import { Encryptionlocal } from "./Encryption-local";
-interface SwitchProps {
-  _idObject: string | null;
-}
 
-export function Switch({ _idObject }: SwitchProps) {
+export function Switch() {
   // Ajoutez _idObject en tant que props
 
   return (
