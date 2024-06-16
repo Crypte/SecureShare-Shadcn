@@ -5,9 +5,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import CryptoJS from "crypto-js";
+import { saveAs } from "file-saver";
+import { File } from "lucide-react";
 import React, { useState } from "react";
-import { DownloadButton } from "./Downloadbutton";
 import { FileInput } from "./Fileinput";
+import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 
@@ -39,6 +42,45 @@ export function Encryptionlocal() {
       setPasswordMatch(event.target.value === password);
     } else {
       setPasswordMatch(false);
+    }
+  };
+
+  const handleDownloadClick = async () => {
+    if (userFile && passwordMatch && password) {
+      try {
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(userFile);
+
+        reader.onload = async (event) => {
+          const fileContent = new Uint8Array(
+            event.target?.result as ArrayBuffer
+          );
+          const wordArray = CryptoJS.lib.WordArray.create(fileContent);
+
+          const key = CryptoJS.enc.Utf8.parse(password);
+          const iv = CryptoJS.lib.WordArray.random(128 / 8);
+
+          const encrypted = CryptoJS.AES.encrypt(wordArray, key, {
+            iv: iv,
+            padding: CryptoJS.pad.Pkcs7,
+          });
+
+          const encryptedContentWithIv = iv.concat(encrypted.ciphertext);
+          const encryptedBase64 = CryptoJS.enc.Base64.stringify(
+            encryptedContentWithIv
+          );
+
+          const encryptedFileName = `${userFile.name}.encrypted`;
+
+          const encryptedFileBlob = new Blob([encryptedBase64], {
+            type: "application/octet-stream",
+          });
+
+          saveAs(encryptedFileBlob, encryptedFileName);
+        };
+      } catch (error) {
+        console.error("Error encrypting the file:", error);
+      }
     }
   };
 
@@ -81,11 +123,13 @@ export function Encryptionlocal() {
         )}
       </CardContent>
       <CardFooter className="gap-3">
-        <DownloadButton
-          file={userFile}
-          passwordMatch={passwordMatch}
-          encryptionKey={password}
-        />
+        <Button
+          className="w-full"
+          onClick={handleDownloadClick}
+          disabled={!userFile || !passwordMatch || !password}
+        >
+          <File className="mr-2 h-4 w-4" /> Chiffrer votre fichier
+        </Button>
       </CardFooter>
       {uploadMessage && <p className="text-center">{uploadMessage}</p>}
     </Card>
