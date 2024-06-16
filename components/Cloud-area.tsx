@@ -76,11 +76,7 @@ export const Cloud = () => {
   const ouvrireDossier = async (folderId: string, retour: boolean) => {
     
     setFolderId(folderId)
-    if(retour){
-      setFolderId(parentFolderId!)
-    }
     
-
     const response = await fetch(`/api/folder/${folderId}/childs`, {
       method: "GET",
       headers: {
@@ -89,20 +85,9 @@ export const Cloud = () => {
       }
     });
 
-    const response_folder = await fetch(`/api/folder/${folderId}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, 
-      }
-    });
-    
-    const {folder} = await response_folder.json()
-
     const {files, folders} = await response.json()
     setFiles(files)
     setFolders(folders)
-    setFolderId(folder.parentFolderId)
     console.log(parentFolderId)
 
 
@@ -144,12 +129,49 @@ export const Cloud = () => {
   };
 
   const goBack = async () => {
-      
+      setRetour(true)
       if(parentFolderId!="yolo"){
-        setRetour(true)
-        await ouvrireDossier(parentFolderId, retour);
+        await ouvrireDossier(parentFolderId,retour);
+      } else {
+          try {
+            const response_files = await fetch(`/api/file/all`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`, 
+              }
+            });
+            const response_folders = await fetch(`/api/folder/all`, {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${localStorage.getItem("token")}`, 
+              }
+            });
+            if (!response_files.ok && !response_folders.ok) {
+              throw new Error(`HTTP error! Status: ${response_files.status}`);
+            }
+            const data_files = await response_files.json();
+            const data_folders = await response_folders.json()
+        
+            if (response_files.ok && response_folders.ok) {
+              setFiles(data_files.files);
+              setFolders(data_folders.folders); // Assurez-vous que votre API renvoie une liste de dossiers
+              console.log(data_files.files);
+              console.log(data_folders.folders); // Vérifiez que les dossiers sont bien récupérés
+            } else {
+              console.error("Failed to fetch files:", data_files.error);
+            }
+          } catch (error) {
+            console.error("Failed to fetch files:", error);
+          }
       }
   };
+
+  const handleNavigation = (folderId: string, parentFolderId: string, retour: boolean) => {
+      setParentFolderId(parentFolderId)
+      ouvrireDossier(folderId, retour)
+  }
   
   
 
@@ -229,7 +251,7 @@ export const Cloud = () => {
                   <TableCell className="font-medium">{folder.name}</TableCell>
                   <TableCell>16/06/2024</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline" onClick={() => ouvrireDossier(folder._id, retour)}>
+                    <Button variant="outline" onClick={() => handleNavigation(folder._id, folder.parentFolderId, retour)}>
                       {/* Ajoutez une icône ou un bouton si nécessaire */}
                       Dossier
                     </Button>
