@@ -1,13 +1,13 @@
-'use client' // Marquez le parent avec "use client" pour qu'il soit considéré comme une Client Component
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
+"use client"; // Marquez le parent avec "use client" pour qu'il soit considéré comme une Client Component
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft } from "lucide-react";
 import bcryptjs from "bcryptjs";
+import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -34,7 +34,7 @@ export default function Login() {
           console.error("Failed to fetch user data");
           
         }
-      } catch (error) {
+    } catch (error) {
       console.error(error);
     }
   };
@@ -45,7 +45,9 @@ export default function Login() {
         <form className="mx-auto grid w-[350px] gap-6" onSubmit={handleSubmit}>
           <div className="grid gap-2 text-center">
             <h1 className="text-3xl font-bold">Connexion</h1>
-            <p className="text-balance text-muted-foreground">Entrez vos informations ci-dessous pour vous connecter</p>
+            <p className="text-balance text-muted-foreground">
+              Entrez vos informations ci-dessous pour vous connecter
+            </p>
           </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
@@ -62,7 +64,10 @@ export default function Login() {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label htmlFor="password">Mot de passe</Label>
-                <Link href="/forgot-password" className="ml-auto inline-block text-sm underline">
+                <Link
+                  href="/forgot-password"
+                  className="ml-auto inline-block text-sm underline"
+                >
                   Mot de passe oublié ?
                 </Link>
               </div>
@@ -75,16 +80,20 @@ export default function Login() {
               />
             </div>
             <div className="flex items-center">
-                <Link href="/register" className="ml-auto inline-block text-sm underline">
-                  S'inscrire
-                </Link>
+              <Link
+                href="/register"
+                className="ml-auto inline-block text-sm underline"
+              >
+                S'inscrire
+              </Link>
             </div>
             <Button type="submit" className="w-full">
               Se connecter
             </Button>
             <Button asChild variant="outline" className="w-full">
-              <Link href={'/home'}>
-                <ArrowLeft className="mr-2 h-4 w-4" />Retour à l'application
+              <Link href={"/home"}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Retour à l'application
               </Link>
             </Button>
           </div>
@@ -92,7 +101,7 @@ export default function Login() {
       </div>
       <div className="hidden bg-muted lg:block">
         <Image
-          src="/placeholder.svg"
+          src="/login-image.jpg"
           alt="Image"
           width="1920"
           height="1080"

@@ -1,13 +1,25 @@
-import React, { useState } from 'react';
-import { GenerateKey } from './Generatekey';
-import { FileInput } from './Fileinput';
-import { DownloadButton } from './Downloadbutton';
-import { Input } from "./ui/input";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "./ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CloudUpload } from "lucide-react";
+import React, { useState } from "react";
+import { DownloadButton } from "./Downloadbutton";
+import { FileInput } from "./Fileinput";
+import { GenerateKey } from "./Generatekey";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
 
 interface EncryptionProps {
   _idObject: string | null;
@@ -16,10 +28,10 @@ interface EncryptionProps {
 export function Encryption({ _idObject }: EncryptionProps) {
   const [userFile, setUserFile] = useState<File | null>(null);
   const [encryptionType, setEncryptionType] = useState("");
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(false);
-  const [uploadMessage, setUploadMessage] = useState('');
+  const [uploadMessage, setUploadMessage] = useState("");
 
   const handleUserFileChange = (selectedFile: File | null) => {
     setUserFile(selectedFile);
@@ -30,14 +42,16 @@ export function Encryption({ _idObject }: EncryptionProps) {
     setPasswordMatch(event.target.value === confirmPassword);
   };
 
-  const handleConfirmPasswordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleConfirmPasswordChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     setConfirmPassword(event.target.value);
     setPasswordMatch(event.target.value === password);
   };
 
   const handleUploadToCloud = async () => {
     if (!userFile) {
-      setUploadMessage('Veuillez sélectionner un fichier à téléverser.');
+      setUploadMessage("Veuillez sélectionner un fichier à téléverser.");
       return;
     }
     const token = localStorage.getItem("token")
@@ -83,7 +97,7 @@ export function Encryption({ _idObject }: EncryptionProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Choisissez votre fichier</CardTitle>
+        <CardTitle>Choisissez un fichier</CardTitle>
       </CardHeader>
       <CardContent className="space-y-5">
         <FileInput onChange={handleUserFileChange} />
@@ -104,16 +118,32 @@ export function Encryption({ _idObject }: EncryptionProps) {
           <>
             <div className="space-y-2">
               <Label htmlFor="password">Entrez votre mot de passe</Label>
-              <Input className="w-[300px]" id="password" type="password" value={password} onChange={handlePasswordChange} />
+              <Input
+                className="w-[300px]"
+                id="password"
+                type="password"
+                value={password}
+                onChange={handlePasswordChange}
+              />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="confirm-password">Confirmez votre mot de passe</Label>
-              <Input className="w-[300px]" id="confirm-password" type="password" value={confirmPassword} onChange={handleConfirmPasswordChange} />
+              <Label htmlFor="confirm-password">
+                Confirmez votre mot de passe
+              </Label>
+              <Input
+                className="w-[300px]"
+                id="confirm-password"
+                type="password"
+                value={confirmPassword}
+                onChange={handleConfirmPasswordChange}
+              />
             </div>
             {password && confirmPassword && (
               <p className={passwordMatch ? "text-green-500" : "text-red-500"}>
-                {passwordMatch ? "Les mots de passe correspondent" : "Les mots de passe ne correspondent pas"}
+                {passwordMatch
+                  ? "Les mots de passe correspondent"
+                  : "Les mots de passe ne correspondent pas"}
               </p>
             )}
           </>
@@ -128,8 +158,13 @@ export function Encryption({ _idObject }: EncryptionProps) {
       </CardContent>
       <CardFooter className="gap-3">
         <DownloadButton file={userFile} />
-        <Button className="w-full" onClick={handleUploadToCloud} disabled={!_idObject}>
-          <CloudUpload className="mr-2 h-4 w-4" /> Envoyez votre fichier sur le cloud
+        <Button
+          className="w-full"
+          onClick={handleUploadToCloud}
+          disabled={!_idObject}
+        >
+          <CloudUpload className="mr-2 h-4 w-4" /> Envoyez votre fichier sur le
+          cloud
         </Button>
       </CardFooter>
       {uploadMessage && <p className="text-center">{uploadMessage}</p>}
