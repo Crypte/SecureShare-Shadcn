@@ -19,7 +19,10 @@ export const Cloud = () => {
   const [folderName, setFolderName] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
-  const folderId = "yolo"; // Remplacez cette valeur par l'ID du dossier parent approprié
+  const [folders, setFolders] = useState<any[]>([]);
+  const [folderId, setFolderId] = useState("");
+  const [parentFolderId, setParentFolderId] = useState<string>("yolo");
+  const [retour, setRetour] = useState<boolean>(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,31 +73,85 @@ export const Cloud = () => {
     }
   };
 
+  const ouvrireDossier = async (folderId: string, retour: boolean) => {
+    
+    setFolderId(folderId)
+    if(retour){
+      setFolderId(parentFolderId!)
+    }
+    
+
+    const response = await fetch(`/api/folder/${folderId}/childs`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+      }
+    });
+
+    const response_folder = await fetch(`/api/folder/${folderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+      }
+    });
+    
+    const {folder} = await response_folder.json()
+
+    const {files, folders} = await response.json()
+    setFiles(files)
+    setFolders(folders)
+    setFolderId(folder.parentFolderId)
+    console.log(parentFolderId)
+
+
+  }
+
   const fetchFiles = async () => {
     try {
-      const response = await fetch(`/api/file/all`,{
+      const response_files = await fetch(`/api/file/all`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Envoyer le token dans l'en-tête Authorization
+          Authorization: `Bearer ${localStorage.getItem("token")}`, 
         }
       });
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+      const response_folders = await fetch(`/api/folder/all`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, 
+        }
+      });
+      if (!response_files.ok && !response_folders.ok) {
+        throw new Error(`HTTP error! Status: ${response_files.status}`);
       }
-      const data = await response.json();
-
-      if (response.ok) {
-        setFiles(data.files);
-        console.log(data.files)
-        console.log(data)
+      const data_files = await response_files.json();
+      const data_folders = await response_folders.json()
+  
+      if (response_files.ok && response_folders.ok) {
+        setFiles(data_files.files);
+        setFolders(data_folders.folders); // Assurez-vous que votre API renvoie une liste de dossiers
+        console.log(data_files.files);
+        console.log(data_folders.folders); // Vérifiez que les dossiers sont bien récupérés
       } else {
-        console.error("Failed to fetch files:", data.error);
+        console.error("Failed to fetch files:", data_files.error);
       }
     } catch (error) {
       console.error("Failed to fetch files:", error);
     }
   };
+
+  const goBack = async () => {
+      
+      if(parentFolderId!="yolo"){
+        setRetour(true)
+        await ouvrireDossier(parentFolderId, retour);
+      }
+  };
+  
+  
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -102,6 +159,7 @@ export const Cloud = () => {
     const newFolderData = {
       name: folderName,
       userId: userId,
+      parentId: folderId,
     };
 
     try {
@@ -135,6 +193,11 @@ export const Cloud = () => {
               La section drive est donc accessible
             </AlertDescription>
           </Alert>
+          {parentFolderId && (
+            <Button variant="outline" onClick={goBack} className="self-start">
+              Retour
+            </Button>
+          )}
           <form onSubmit={handleSubmit}>
             <div className="flex items-center gap-3">
               <Input
@@ -143,7 +206,7 @@ export const Cloud = () => {
                 id="folder-name"
                 value={folderName}
                 onChange={(event) => setFolderName(event.target.value)}
-                placeholder="Cherchez un fichier ou un dossier"
+                placeholder="Ajouter un dossier"
                 className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               />
               <Button type="submit" variant="outline">
@@ -155,12 +218,24 @@ export const Cloud = () => {
           <Table className="mt-10">
             <TableHeader>
               <TableRow>
-                <TableHead>Fichier</TableHead>
+                <TableHead>Nom</TableHead>
                 <TableHead>Date d'ajout</TableHead>
                 <TableHead className="text-right">Téléchargement</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
+              {folders.map((folder, index) => (
+                <TableRow key={folder._id}>
+                  <TableCell className="font-medium">{folder.name}</TableCell>
+                  <TableCell>16/06/2024</TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="outline" onClick={() => ouvrireDossier(folder._id, retour)}>
+                      {/* Ajoutez une icône ou un bouton si nécessaire */}
+                      Dossier
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
               {files.map((file, index) => (
                 <TableRow key={file._id}>
                   <TableCell className="font-medium">{file.fileName}</TableCell>
@@ -185,7 +260,7 @@ export const Cloud = () => {
         </Alert>
       )}
     </div>
-  );
-};
+  )};
+  
 
 export default Cloud;

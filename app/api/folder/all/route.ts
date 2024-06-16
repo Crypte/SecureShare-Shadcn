@@ -16,7 +16,7 @@ export async function GET(request: NextRequest){
         return NextResponse.json({error: 'Erreur lors de la vérification du token '}, {status: 400});
     }
 
-    const folders = await Folder.find({});
+    const folders = await Folder.find({"userId": userId, "parentFolderId": "yolo"});
     if (folders){
         return NextResponse.json({folders})
     }
