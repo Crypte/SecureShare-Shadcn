@@ -14,6 +14,8 @@ import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
+import { get } from "http";
+
 export const Cloud = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [folderName, setFolderName] = useState("");
@@ -74,9 +76,6 @@ export const Cloud = () => {
   };
 
   const ouvrireDossier = async (folderId: string, retour: boolean) => {
-    
-    setFolderId(folderId)
-    
     const response = await fetch(`/api/folder/${folderId}/childs`, {
       method: "GET",
       headers: {
@@ -88,6 +87,7 @@ export const Cloud = () => {
     const {files, folders} = await response.json()
     setFiles(files)
     setFolders(folders)
+    setFolderId(folderId)
     console.log(parentFolderId)
 
 
@@ -118,6 +118,8 @@ export const Cloud = () => {
       if (response_files.ok && response_folders.ok) {
         setFiles(data_files.files);
         setFolders(data_folders.folders); // Assurez-vous que votre API renvoie une liste de dossiers
+        setFolderId("yolo")
+        setParentFolderId("yolo")
         console.log(data_files.files);
         console.log(data_folders.folders); // Vérifiez que les dossiers sont bien récupérés
       } else {
@@ -129,47 +131,38 @@ export const Cloud = () => {
   };
 
   const goBack = async () => {
-      setRetour(true)
-      if(parentFolderId!="yolo"){
-        await ouvrireDossier(parentFolderId,retour);
+      
+      if(folderId.includes("yolo") || parentFolderId.includes("yolo")){
+          fetchFiles()
       } else {
-          try {
-            const response_files = await fetch(`/api/file/all`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`, 
-              }
-            });
-            const response_folders = await fetch(`/api/folder/all`, {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${localStorage.getItem("token")}`, 
-              }
-            });
-            if (!response_files.ok && !response_folders.ok) {
-              throw new Error(`HTTP error! Status: ${response_files.status}`);
-            }
-            const data_files = await response_files.json();
-            const data_folders = await response_folders.json()
-        
-            if (response_files.ok && response_folders.ok) {
-              setFiles(data_files.files);
-              setFolders(data_folders.folders); // Assurez-vous que votre API renvoie une liste de dossiers
-              console.log(data_files.files);
-              console.log(data_folders.folders); // Vérifiez que les dossiers sont bien récupérés
-            } else {
-              console.error("Failed to fetch files:", data_files.error);
-            }
-          } catch (error) {
-            console.error("Failed to fetch files:", error);
-          }
+          setParentFolderId(await getParent(parentFolderId))
+          await ouvrireDossier(parentFolderId,retour);
       }
-  };
+  }
+
+  const getParent = async (folderId: string) => {
+    const response = await fetch(`/api/folder/${folderId}`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, 
+      }
+    });
+
+    const data = await response.json()
+    var folder = data.folder
+    return folder.parentFolderId
+  }
+
+  const handleBack = (folderId: string, parentFolderId: string, retour: boolean) => {
+    setParentFolderId(parentFolderId)
+    setFolderId(folderId)
+    goBack()
+}
 
   const handleNavigation = (folderId: string, parentFolderId: string, retour: boolean) => {
       setParentFolderId(parentFolderId)
+      setFolderId(folderId)
       ouvrireDossier(folderId, retour)
   }
   
@@ -284,5 +277,4 @@ export const Cloud = () => {
     </div>
   )};
   
-
 export default Cloud;
