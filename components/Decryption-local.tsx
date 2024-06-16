@@ -18,6 +18,7 @@ var CryptoJS = require("crypto-js");
 export function Decryptionlocal() {
   const [userFile, setUserFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
+  const [decryptionMessage, setDecryptionMessage] = useState("");
 
   const handleUserFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUserFile(event.target.files?.[0] || null);
@@ -29,55 +30,46 @@ export function Decryptionlocal() {
 
   const handleDecryptClick = () => {
     if (userFile && password) {
-      const reader = new FileReader();
-      reader.readAsText(userFile);
+      try {
+        const reader = new FileReader();
+        reader.readAsArrayBuffer(userFile);
 
-      reader.onload = (event) => {
-        const encryptedContentWithIv = event.target?.result as string;
-        const key = CryptoJS.enc.Utf8.parse(password);
+        reader.onload = (event) => {
+          const fileContent = event.target?.result as ArrayBuffer;
 
-        try {
-          const encryptedContentWithIvBytes = CryptoJS.enc.Base64.parse(
-            encryptedContentWithIv
-          );
+          // Extract IV and encrypted bytes
+          const encryptedContent = new Uint8Array(fileContent);
           const iv = CryptoJS.lib.WordArray.create(
-            encryptedContentWithIvBytes.words.slice(0, 128 / 32)
+            encryptedContent.slice(0, 16)
           );
-          const encryptedContentBytes = CryptoJS.lib.WordArray.create(
-            encryptedContentWithIvBytes.words.slice(128 / 32)
+          const encryptedBytes = encryptedContent.slice(16);
+
+          // Decrypt
+          const decrypted = CryptoJS.AES.decrypt(
+            { ciphertext: CryptoJS.lib.WordArray.create(encryptedBytes) },
+            CryptoJS.enc.Utf8.parse(password),
+            { iv: iv, padding: CryptoJS.pad.Pkcs7 }
           );
 
-          const decrypted = CryptoJS.AES.decrypt(
-            { ciphertext: encryptedContentBytes },
-            key,
+          // Convert decrypted data to blob
+          const decryptedFileBlob = new Blob(
+            [decrypted.toString(CryptoJS.enc.Latin1)],
             {
-              iv: iv,
-              padding: CryptoJS.pad.Pkcs7,
+              type: userFile.type,
             }
           );
 
-          const decryptedContentBytes = CryptoJS.enc.Hex.parse(
-            decrypted.toString()
-          );
-          const decryptedContentArray = new Uint8Array(
-            decryptedContentBytes.words
-          );
-
-          const decryptedContent = CryptoJS.enc.Latin1.stringify(
-            decryptedContentArray
-          );
-
-          const decryptedFileBlob = new Blob([decryptedContent], {
-            type: userFile.type,
-          });
-
-          const decryptedFileName = userFile.name.replace(/.encrypted$/, "");
-
+          // Save decrypted file
+          const decryptedFileName = userFile.name.replace(/\.encrypted$/, "");
           saveAs(decryptedFileBlob, decryptedFileName);
-        } catch (error) {
-          console.error("Error decrypting file:", error);
-        }
-      };
+
+          // Success message or further actions
+          setDecryptionMessage("Fichier déchiffré avec succès !");
+        };
+      } catch (error) {
+        console.error("Erreur lors du déchiffrement du fichier:", error);
+        setDecryptionMessage("Erreur lors du déchiffrement du fichier.");
+      }
     }
   };
 
