@@ -8,9 +8,16 @@ connect()
 
 export async function POST(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const folderId = searchParams.get('folderId');
+  
+  if(!searchParams.get("folderId")){
+    var folderId = "yolo"
+  } else {
+    var folderId = searchParams.get('folderId')!;
+  }
+  
 
   const userId = await getDataFromToken(request)
+  
   
   const newFolderData = await request.json();
   console.log(newFolderData);

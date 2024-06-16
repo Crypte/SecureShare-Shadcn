@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   const file = formData.get('file') as File;
   const fileName = file.name.replace(/\s+/g, '_');
   const fileType = file.type;
-  const folderId = "666af600827cd3b851d7b5ed";
+  const folderId = formData.get("folderId") as string;
   const userId = user_id
 
   if (!file || !fileName || !fileType || !folderId || !user_id) {
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     fileName,
     fileType,
     fileData: buffer,
-    folderId,
+    folderId: folderId,
     userId
   });
 
