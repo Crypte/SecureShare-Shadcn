@@ -12,6 +12,8 @@ import { BadgePlus, Download, FolderPlus, FilePlus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { format } from 'date-fns';
+import {fr} from 'date-fns/locale'; 
 
 import { get } from "http";
 
@@ -155,6 +157,17 @@ export const Cloud = () => {
     var folder = data.folder
     return folder.parentFolderId
   }
+
+  const formatDate = (dateString: string) => {
+    if(dateString){
+      const date = new Date(dateString);
+      console.log('DAAATE',dateString)
+      return format(date, 'dd MMMM yyyy', { "locale": fr }); // Pour le format "16 juin 2024"
+      // return format(date, 'dd-MM-yyyy'); // Pour le format "16-06-2024"
+    }
+    
+  };
+  
 
   const handleBack = (folderId: string, parentFolderId: string, retour: boolean) => {
     setParentFolderId(parentFolderId)
@@ -349,7 +362,7 @@ export const Cloud = () => {
               {filteredFolders.map((folder, index) => (
                 <TableRow key={folder._id}>
                   <TableCell className="font-medium">{folder.name}</TableCell>
-                  <TableCell>16/06/2024</TableCell>
+                  <TableCell>{formatDate(folder.creationDate)}</TableCell>
                   <TableCell className="text-right">
 
                     <Button variant="outline" onClick={() => handleNavigation(folder._id, folder.parentFolderId, retour)}>
@@ -369,7 +382,7 @@ export const Cloud = () => {
               {filteredFiles.map((file, index) => (
                 <TableRow key={file._id}>
                   <TableCell className="font-medium">{file.fileName}</TableCell>
-                  <TableCell>16/06/2024</TableCell>
+                  <TableCell>{formatDate(file.creationDate)}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" onClick={() => downloadFile(file._id)}>
                       <Download className="mr-2 h-4 w-4" />

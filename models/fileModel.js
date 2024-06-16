@@ -6,6 +6,10 @@ const FileSchema = new mongoose.Schema({
   fileData: { type: Buffer, required: true },
   folderId: { type: String, required: true },
   userId: { type: String, required: true },
+  creationDate: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 
