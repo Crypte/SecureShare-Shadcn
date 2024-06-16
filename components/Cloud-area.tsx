@@ -1,3 +1,4 @@
+// components/Cloud.tsx
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
@@ -17,6 +18,7 @@ export const Cloud = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [folderName, setFolderName] = useState("");
   const [isConnected, setIsConnected] = useState(false);
+  const [files, setFiles] = useState<any[]>([]);
   const folderId = "yolo"; // Remplacez cette valeur par l'ID du dossier parent approprié
 
   useEffect(() => {
@@ -27,6 +29,7 @@ export const Cloud = () => {
         if (decodedToken) {
           setUserId(decodedToken.userId);
           setIsConnected(true);
+          fetchFiles();
         } else {
           setIsConnected(false);
         }
@@ -39,24 +42,59 @@ export const Cloud = () => {
     }
   }, []);
 
-  const data = [
-    {
-      file: "hello.txt",
-      addedDate: "10/03/20",
-    },
-    {
-      file: "hello.txt",
-      addedDate: "10/03/20",
-    },
-    {
-      file: "hello.txt",
-      addedDate: "10/03/20",
-    },
-    {
-      file: "hello.txt",
-      addedDate: "10/03/20",
-    },
-  ];
+  const downloadFile = async (fileId: string) => {
+    try {
+      const response = await fetch(`/api/file/download/${fileId}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = response.headers.get('Content-Disposition')?.split('filename=')[1] || 'file';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+
+      // Libérer l'URL de l'objet Blob
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to download file:', error);
+    }
+  };
+
+  const fetchFiles = async () => {
+    try {
+      const response = await fetch(`/api/file/all`,{
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Envoyer le token dans l'en-tête Authorization
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      if (response.ok) {
+        setFiles(data.files);
+        console.log(data.files)
+        console.log(data)
+      } else {
+        console.error("Failed to fetch files:", data.error);
+      }
+    } catch (error) {
+      console.error("Failed to fetch files:", error);
+    }
+  };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -123,12 +161,12 @@ export const Cloud = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{item.file}</TableCell>
-                  <TableCell>{item.addedDate}</TableCell>
+              {files.map((file, index) => (
+                <TableRow key={file._id}>
+                  <TableCell className="font-medium">{file.fileName}</TableCell>
+                  <TableCell>16/06/2024</TableCell>
                   <TableCell className="text-right">
-                    <Button variant="outline">
+                    <Button variant="outline" onClick={() => downloadFile(file._id)}>
                       <Download className="mr-2 h-4 w-4" />
                       Download
                     </Button>
