@@ -1,4 +1,3 @@
-// components/Cloud.tsx
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Table,
@@ -9,13 +8,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import jwt from "jsonwebtoken";
-import { BadgePlus, Download } from "lucide-react";
+import { BadgePlus, Download, FolderPlus, FilePlus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 export const Cloud = () => {
-  const [userId, setUserId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>();
   const [folderName, setFolderName] = useState("");
   const [isConnected, setIsConnected] = useState(false);
   const [files, setFiles] = useState<any[]>([]);
@@ -23,6 +22,8 @@ export const Cloud = () => {
   const [folderId, setFolderId] = useState("");
   const [parentFolderId, setParentFolderId] = useState<string>("yolo");
   const [retour, setRetour] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>(""); // State for search query
+  const [showAddFolderForm, setShowAddFolderForm] = useState<boolean>(false); // State to manage the visibility of the folder creation form
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -74,6 +75,7 @@ export const Cloud = () => {
   };
 
   const ouvrireDossier = async (folderId: string, retour: boolean) => {
+
     
     setFolderId(folderId)
     
@@ -81,17 +83,22 @@ export const Cloud = () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`, 
-      }
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      },
     });
+
 
     const {files, folders} = await response.json()
     setFiles(files)
     setFolders(folders)
     console.log(parentFolderId)
 
-
-  }
+    const { files, folders } = await response.json();
+    setFiles(files);
+    setFolders(folders);
+    setFolderId(folder.parentFolderId);
+    console.log(parentFolderId);
+  };
 
   const fetchFiles = async () => {
     try {
@@ -99,27 +106,29 @@ export const Cloud = () => {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, 
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
       });
       const response_folders = await fetch(`/api/folder/all`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, 
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         }
       });
       if (!response_files.ok && !response_folders.ok) {
         throw new Error(`HTTP error! Status: ${response_files.status}`);
       }
       const data_files = await response_files.json();
-      const data_folders = await response_folders.json()
+      const data_folders = await response_folders.json();
+      
   
       if (response_files.ok && response_folders.ok) {
         setFiles(data_files.files);
-        setFolders(data_folders.folders); // Assurez-vous que votre API renvoie une liste de dossiers
+        setFolders(data_folders.folders);
+        setFolderId("yolo");
         console.log(data_files.files);
-        console.log(data_folders.folders); // Vérifiez que les dossiers sont bien récupérés
+        console.log(data_folders.folders);
       } else {
         console.error("Failed to fetch files:", data_files.error);
       }
@@ -129,6 +138,7 @@ export const Cloud = () => {
   };
 
   const goBack = async () => {
+
       setRetour(true)
       if(parentFolderId!="yolo"){
         await ouvrireDossier(parentFolderId,retour);
@@ -173,9 +183,8 @@ export const Cloud = () => {
       ouvrireDossier(folderId, retour)
   }
   
-  
 
-  const handleSubmit = async (event: any) => {
+  const handleFolderSubmit = async (event: any) => {
     event.preventDefault();
 
     const newFolderData = {
@@ -189,14 +198,16 @@ export const Cloud = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`, // Envoyer le token dans l'en-tête Authorization
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify(newFolderData),
       });
 
       if (response.ok) {
         console.log("Dossier créé avec succès");
-        setFolderName(""); // Réinitialiser le champ de saisie
+        setFolderName("");
+        setShowAddFolderForm(false); // Hide the folder creation form
+        fetchFiles(); // Refresh the list of files and folders
       } else {
         console.error("Erreur lors de la création du dossier");
       }
@@ -204,6 +215,84 @@ export const Cloud = () => {
       console.error("Erreur lors de la requête fetch :", error);
     }
   };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    console.log("rttt", file);
+    console.log("folderId", folderId);
+    if (file) {
+      await uploadFile(file, folderId);
+    }
+  };
+
+  const uploadFile = async (file: File, folderId: string ) => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file); // Ajoutez le fichier à FormData
+  
+      // Ajoutez les autres données nécessaires
+      formData.append('folderId', folderId);
+      formData.append('fileType', file.type);
+      formData.append('userId', userId); // Assurez-vous que userId est défini correctement
+      console.log("file", file);
+      console.log("folderId", folderId);
+      console.log("fileType", file.type);
+      console.log("userId", userId);
+      const response = await fetch('/api/file/upload', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: formData,
+      });
+  
+      if (response.ok) {
+        console.log('Fichier téléversé avec succès');
+        fetchFiles(); // Rafraîchit la liste des fichiers et dossiers après le téléversement
+      } else {
+        throw new Error('Échec du téléversement du fichier');
+      }
+    } catch (error) {
+      console.error('Erreur lors du téléversement du fichier', error);
+    }
+  };
+  
+   // Function to delete file or folder
+   const deleteItem = async (id: string, type: string) => {
+    try {
+      let endpoint = "";
+      console.log(id);
+  
+      if (type === "file") {
+        endpoint = `/api/file/delete/${id}`;
+      } else if (type === "folder") {
+        endpoint = `/api/folder/delete/${id}`;
+      }
+  
+      const response = await fetch(endpoint, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      });
+  
+      if (response.ok) {
+        console.log(`${type} deleted successfully`);
+        fetchFiles(); // Rafraîchir la liste des fichiers et dossiers
+      } else {
+        console.error(`Failed to delete ${type}`);
+      }
+    } catch (error) {
+      console.error(`Failed to delete ${type}`, error);
+    }
+  };
+  
+
+  // Filtered files and folders based on search query
+  const filteredFiles = files.filter(file => file.fileName.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredFolders = folders.filter(folder => folder.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
 
   return (
     <div className="flex flex-col gap-3">
@@ -215,57 +304,100 @@ export const Cloud = () => {
               La section drive est donc accessible
             </AlertDescription>
           </Alert>
-          {parentFolderId && (
+          {parentFolderId !== "yolo" && (
             <Button variant="outline" onClick={goBack} className="self-start">
               Retour
             </Button>
           )}
-          <form onSubmit={handleSubmit}>
-            <div className="flex items-center gap-3">
-              <Input
-                type="text"
-                name="folder-name"
-                id="folder-name"
-                value={folderName}
-                onChange={(event) => setFolderName(event.target.value)}
-                placeholder="Ajouter un dossier"
-                className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          <Input
+            type="text"
+            name="search-query"
+            id="search-query"
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Rechercher un fichier ou un dossier"
+            className="w-full mt-5 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          />
+          <div className="flex gap-3 mt-3">
+            <Button variant="outline" onClick={() => setShowAddFolderForm(!showAddFolderForm)}>
+              <FolderPlus className="mr-2 h-4 w-4" />
+              Ajouter un dossier
+            </Button>
+            <label htmlFor="upload-file" className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="file"
+                id="upload-file"
+                name="upload-file"
+                className="hidden"
+                onChange={handleFileChange}
               />
-              <Button type="submit" variant="outline">
-                <BadgePlus className="mr-2 h-4 w-4" />
-                Ajouter
-              </Button>
-            </div>
-          </form>
+              <FilePlus className="mr-2 h-4 w-4" />
+              Ajouter un fichier
+            </label>
+          </div>
+          {showAddFolderForm && (
+            <form onSubmit={handleFolderSubmit} className="mt-3">
+              <div className="flex items-center gap-3">
+                <Input
+                  type="text"
+                  name="folder-name"
+                  id="folder-name"
+                  value={folderName}
+                  onChange={(event) => setFolderName(event.target.value)}
+                  placeholder="Nom du dossier"
+                  className="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                />
+                <Button type="submit" variant="outline">
+                  <BadgePlus className="mr-2 h-4 w-4" />
+                  Ajouter
+                </Button>
+              </div>
+            </form>
+          )}
           <Table className="mt-10">
             <TableHeader>
               <TableRow>
                 <TableHead>Nom</TableHead>
                 <TableHead>Date d'ajout</TableHead>
-                <TableHead className="text-right">Téléchargement</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {folders.map((folder, index) => (
+              {filteredFolders.map((folder, index) => (
                 <TableRow key={folder._id}>
                   <TableCell className="font-medium">{folder.name}</TableCell>
                   <TableCell>16/06/2024</TableCell>
                   <TableCell className="text-right">
+
                     <Button variant="outline" onClick={() => handleNavigation(folder._id, folder.parentFolderId, retour)}>
                       {/* Ajoutez une icône ou un bouton si nécessaire */}
                       Dossier
                     </Button>
+                    <Button
+                      variant="outline"
+                      className="ml-2"
+                      onClick={() => deleteItem(folder._id, "folder")}
+                    >
+                      <Trash className="mr-1 h-4 w-4 text-red-500" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
-              {files.map((file, index) => (
+              {filteredFiles.map((file, index) => (
                 <TableRow key={file._id}>
                   <TableCell className="font-medium">{file.fileName}</TableCell>
                   <TableCell>16/06/2024</TableCell>
                   <TableCell className="text-right">
                     <Button variant="outline" onClick={() => downloadFile(file._id)}>
                       <Download className="mr-2 h-4 w-4" />
-                      Download
+                      Télécharger
+                    </Button>
+                    <Button
+                      variant="outline"
+                      className="ml-2"
+                      onClick={() => deleteItem(file._id, "file")}
+                    >
+                      <Trash className="mr-1 h-4 w-4 text-red-500" />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -282,7 +414,8 @@ export const Cloud = () => {
         </Alert>
       )}
     </div>
-  )};
-  
+  );
+};
+
 
 export default Cloud;
