@@ -163,8 +163,8 @@ export default function Pricing() {
     },
     {
       title: "Pro",
-      monthlyPrice: 10,
-      yearlyPrice: 100,
+      monthlyPrice: 3,
+      yearlyPrice: 30,
       description: "Chiffrement local et stockage cloud",
       features: [
         "Jusqu'à 100 go de stockage",
@@ -177,8 +177,8 @@ export default function Pricing() {
     },
     {
       title: "Pro Plus",
-      monthlyPrice: 15,
-      yearlyPrice: 150,
+      monthlyPrice: 5,
+      yearlyPrice: 50,
       description: "Chiffrement local et stockage cloud",
       features: [
         "Jusqu'à 1 to de stockage",
