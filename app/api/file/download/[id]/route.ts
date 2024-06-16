@@ -8,7 +8,6 @@ connect()
 
 
 export async function GET(request: NextRequest, { params }: { params: { id: string }}){
-    const formData = await request.formData();
 
     const userId = await getDataFromToken(request);
 
@@ -16,12 +15,13 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         return NextResponse.json({error: 'Erreur lors de la vérification du token '}, {status: 400});
     }
 
-    const fileRetrieved = await File.findById(params.id);
-    var resp = new NextResponse(); 
-    resp.headers.set('Content-Type', fileRetrieved!.fileType!);
+    const file = await File.findById(params.id);
+    var headers = new Headers()
+    headers.set('Content-Type', file!.fileType!);
+    headers.set('Content-Disposition', `attachment; filename=${file.fileName}`);
 
-    if (fileRetrieved){
-        return NextResponse.json(fileRetrieved);
+    if (file){
+        return new NextResponse(file.fileData, { status: 200, statusText: "OK", headers });
     }
 
 

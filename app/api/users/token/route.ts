@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 connect();
 
-const secretKey = process.env.JWT_SECRET_KEY || 'your-secret-key'; // Utilisez une variable d'environnement pour la clé secrète
+const secretKey = process.env.TOKEN_SECRET || 'your-secret-key'; // Utilisez une variable d'environnement pour la clé secrète
 
 export async function POST(request: NextRequest) {
     try {

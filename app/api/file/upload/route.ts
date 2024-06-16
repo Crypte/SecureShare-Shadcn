@@ -7,21 +7,21 @@ import { getDataFromToken } from '@/lib/helpers/getDataFromToken';
 connect()
 // POST handler
 export async function POST(request: NextRequest) {
-  await connect();
 
   const user_id = await getDataFromToken(request)
+  console.log(user_id)
   if(user_id==null){
     return NextResponse.json({error: 'Erreur lors de la vérification du token '}, {status: 400});
-}
+  }
   const formData = await request.formData();
 
   const file = formData.get('file') as File;
-  const fileName = (formData.get('fileName') as string).replace(/\s+/g, '_');
-  const fileType = formData.get('fileType') as string;
-  const folderId = formData.get('folderId') as string;
-  const userId = formData.get('userId') as string;
+  const fileName = file.name.replace(/\s+/g, '_');
+  const fileType = file.type;
+  const folderId = "666af600827cd3b851d7b5ed";
+  const userId = user_id
 
-  if (!file || !fileName || !fileType || !folderId || !userId) {
+  if (!file || !fileName || !fileType || !folderId || !user_id) {
     return NextResponse.json({ error: "Missing required fields." }, { status: 400 });
   }
 
@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
       success: true,
       savedFile
     });
-  } catch (error) {
+  } catch (error: any) {
+    console.error(error.message)
     return NextResponse.json({
       error: "Error uploading file",
       
