@@ -194,7 +194,7 @@ export default function Pricing() {
     <div className="py-8">
       <PricingHeader
         title="Prix et plans "
-        subtitle="choisissez le plan qui vous convient le mieux"
+        subtitle="Choisissez le plan qui vous convient le mieux"
       />
       <PricingSwitch onSwitch={togglePricingPeriod} />
       <section className="flex flex-col sm:flex-row sm:flex-wrap justify-center gap-8 mt-8">
